@@ -1,34 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
 using PatientPortal.Models;
-using MongoDB.Driver.Builders;
-using MongoDB.Bson;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using System.Linq;
 
 namespace PatientPortal.BackEnd
 {
 
-    public class Repository
+    public class PatientRepository
     {
         private MongoServer _server;
         private MongoDatabase _db;
         private MongoCollection _patients;
         private MongoGridFS _gridFS;
 
-        const string _DBNAME = "su2c";
+        readonly string _DBNAME = ConfigurationManager.AppSettings["dbname"];
+        readonly string _DBHOST = ConfigurationManager.AppSettings["dbhost"];
 
         public PatientModel GetPatient(string id)
         {
             return _patients.FindOneAs<PatientModel>(Query.EQ("_id", id));
         }
 
-        public Repository()
+        public PatientRepository()
         {
-            _server = new MongoServer(new MongoServerSettings { Server = new MongoServerAddress("leeloo.tgen.org"), SafeMode = SafeMode.True });
+            _server = new MongoServer(new MongoServerSettings { Server = new MongoServerAddress(_DBHOST), SafeMode = SafeMode.True });
 
             //patients
             _patients = _server.GetDatabase(_DBNAME).GetCollection<PatientModel>("patients");
@@ -67,7 +68,7 @@ namespace PatientPortal.BackEnd
         {
             var result =_patients.Insert<PatientModel>(patient);
             if (result.ErrorMessage != null)
-                throw new Exception("Problem insterting document");
+                throw new Exception("Problem inserting document");
         }
 
         public IEnumerable<FileModel> GetFilesForPatient(PatientModel patient)
@@ -91,14 +92,30 @@ namespace PatientPortal.BackEnd
             return file_model;
         }
 
-        public Stream DownloadFile(ref FileModel file)
+        public Stream DownloadReport(string patient_id)
         {
-            var result = _gridFS.FindOneById(file.ID);
+            return DownloadFile(new FileModel { PatientID = patient_id, Filename = "genomic_report.pptx" });
+        }
+
+        public bool IsReportGenerated(string patient_id)
+        {
+            return false;
+        }
+
+        public FileModel UploadReport(Stream data, string patient_id)
+        {
+            return UploadFile(data, new FileModel { PatientID = patient_id, Filename = "genomic_report.pptx" });
+        }
+
+        public Stream DownloadFile(FileModel file)
+        {
+            var result = _gridFS.FindOne( Query.And(
+                        Query.EQ("PatientID", file.PatientID), Query.EQ("Filename", file.Filename)
+                        ));
+
 
             if (result == null)
                 throw new Exception("Could not find file by that ID.");
-
-            file.Filename = result.Name;
 
             return result.OpenRead();
         }
