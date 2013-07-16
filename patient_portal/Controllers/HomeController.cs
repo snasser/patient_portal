@@ -1,24 +1,24 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using PatientPortal.BackEnd;
+using PatientPortal.Models;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.ComponentModel.DataAnnotations;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
-using Aspose.Slides;
-using System.IO;
-using System.Drawing;
-using Aspose.Slides.Pptx;
-using PatientPortal.Models;
-using PatientPortal.BackEnd;
-using MongoDB.Bson;
-using System.Reflection;
-using System.ComponentModel.DataAnnotations;
 
 namespace PatientPortal.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
-        private Repository _repository = new Repository();
+        private PatientRepository _repository = new PatientRepository();
+
+        const string _PPTGENDIR = "target";
 
         [HttpGet]
         [Authorize]
@@ -81,6 +81,29 @@ namespace PatientPortal.Controllers
         }
 
         [HttpGet]
+        public ActionResult EditPatient(string id)
+        {
+            var model = _repository.GetPatientWithFiles(id);
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult EditPatient(PatientViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                _repository.UpdatePatient(model);
+                return RedirectToAction("Index");
+            }
+            //return View(model); 
+            //TODO: Return properly with model errors (needs to be submitted with AJAX in dialog
+            return RedirectToAction("Index");
+        }
+
+
+
+
+        [HttpGet]
         public ActionResult PatientDelete(string id)
         {
             _repository.DeletePatient(id);
@@ -109,7 +132,7 @@ namespace PatientPortal.Controllers
             var filemodel = new FileModel();
             filemodel.ID = ObjectId.Parse(id);
 
-            var fs = new FileStreamResult(_repository.DownloadFile(ref filemodel), " application/octet-stream");
+            var fs = new FileStreamResult(_repository.DownloadFile(filemodel), " application/octet-stream");
             fs.FileDownloadName = filemodel.Filename;
             return fs;
         }
@@ -148,7 +171,28 @@ namespace PatientPortal.Controllers
 
         public ActionResult PPT(string id)
         {
-            return Process(_repository.GetPatient(id));
+            var patient = _repository.GetPatient(id);
+            var bin = ConfigurationManager.AppSettings["reportgen"];
+            var resource_path = ConfigurationManager.AppSettings["reportgendir"];
+            var host = ConfigurationManager.AppSettings["dbhost"];
+            var db = ConfigurationManager.AppSettings["dbname"];
+
+            var cmd_line = string.Format( @"-jar {0} I={1}/gemm_main2.jrxml 
+                O={2} outputType=pptx Q=""test"" s={3} p=patient 
+                m=mongodb://{4}:27017/su2c 
+                wd={1}",
+                                                             bin,
+                                                             resource_path,
+                                                             _PPTGENDIR,
+                                                             id);
+
+            //launch the process
+            var process = System.Diagnostics.Process.Start(new ProcessStartInfo
+                {
+                    FileName = "java",
+                    Arguments = cmd_line,
+                });
+            return new FileStreamResult(_repository.DownloadReport(id), "application/vnd.openxmlformats-officedocument.presentationml.presentation");
         }
 
 

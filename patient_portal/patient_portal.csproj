@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'GEMM-production|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
@@ -174,6 +174,7 @@
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\PatientModel.cs" />
+    <Compile Include="Models\SiteModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="repository\IRepository.cs" />
     <Compile Include="repository\PatientRepository.cs" />
@@ -182,16 +183,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\images\default_avatar.jpg" />
+    <Content Include="assets\images\green.svg" />
     <Content Include="assets\images\karmanos.jpg" />
     <Content Include="assets\images\logo.gif" />
+    <Content Include="assets\images\red.svg" />
     <Content Include="assets\images\SU2C_2_onWhite.jpg" />
     <Content Include="assets\images\tgen_logo.png" />
     <Content Include="assets\images\tgen_bg.png" />
     <Content Include="assets\js\jquery.editinplace.js" />
     <Content Include="assets\js\jquery.simplemodal.js" />
-    <Content Include="assets\logo.gif" />
-    <Content Include="assets\SU2C_2_onWhite.jpg" />
-    <Content Include="assets\tgen_bg.png" />
     <Content Include="Content\DataTables\docs\media\css\doc.css" />
     <Content Include="Content\DataTables\docs\media\css\shCore.css" />
     <Content Include="Content\DataTables\docs\media\css\shThemeDataTables.css" />
@@ -378,10 +378,9 @@
     <Content Include="Content\DataTables\extras\TableTools\media\images\psd\copy document.psd" />
     <Content Include="Content\DataTables\extras\TableTools\media\images\psd\collection.psd" />
     <Content Include="Content\template.pptx" />
+    <None Include="Properties\PublishProfiles\GEMM Test.pubxml" />
     <None Include="Properties\PublishProfiles\GEMM.pubxml" />
-    <None Include="Properties\PublishProfiles\GemmPublish.pubxml" />
     <None Include="Properties\PublishProfiles\ngd-data.pubxml" />
-    <None Include="Properties\PublishProfiles\su2c-test.pubxml" />
     <None Include="Scripts\jquery-1.7.1.intellisense.js" />
     <Content Include="Scripts\DataTables\extras\TableTools\media\js\ZeroClipboard.js" />
     <Content Include="Scripts\DataTables\media\js\jquery.dataTables.js" />
@@ -407,25 +406,10 @@
     </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Images\accent.png" />
-    <Content Include="Images\bullet.png" />
-    <Content Include="Images\heroAccent.png" />
-    <Content Include="Images\orderedList0.png" />
-    <Content Include="Images\orderedList1.png" />
-    <Content Include="Images\orderedList2.png" />
-    <Content Include="Images\orderedList3.png" />
-    <Content Include="Images\orderedList4.png" />
-    <Content Include="Images\orderedList5.png" />
-    <Content Include="Images\orderedList6.png" />
-    <Content Include="Images\orderedList7.png" />
-    <Content Include="Images\orderedList8.png" />
-    <Content Include="Images\orderedList9.png" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Account\_ChangePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
@@ -441,12 +425,20 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\Home\AddPatient.cshtml" />
+    <Content Include="Views\Home\EditPatient.cshtml" />
+    <None Include="Web.GEMM-production.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.GEMM-test.config">
+      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Code\" />
-    <Folder Include="App_Data\" />
     <Folder Include="Filters\" />
     <Folder Include="target\" />
     <Folder Include="Views\Shared\EditorTemplates\" />
@@ -457,6 +449,15 @@
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'GEMM-test|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

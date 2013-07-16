@@ -3,8 +3,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 
 namespace PatientPortal.Models
 {
@@ -315,7 +313,7 @@ namespace PatientPortal.Models
     }
 
     [BsonIgnoreExtraElements]
-    public class PatientModel
+    public class PatientModel 
     {
         [BsonId]
         [Required]
@@ -1133,9 +1131,21 @@ namespace PatientPortal.Models
             Date = DateTime.Today;
         }
 
+        public bool IsComplete()
+        {
+            if (this.ID != null && this.PatientSummary != null
+                && this.PatientGender != null 
+                && this.PatientRace != null)
+                return true;
+
+            return false;
+        }
+
+
+       
     }
 
-    public class PatientViewModel
+    public class PatientViewModel 
     {
         public PatientModel Patient { get; set; }
 
@@ -1151,6 +1161,7 @@ namespace PatientPortal.Models
         }
 
         public IList<FileModel> Files { get; set; }
+
 
     }
 
